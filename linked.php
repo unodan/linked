@@ -270,3 +270,23 @@ class Linked_List {
 		if ($echo) echo $html; else return $html; 
 	}
 }
+
+$list = new Linked_List();
+
+$node1 = new List_Node(array('s1' => array('var1' => 'HELLO-1', 'var2' => 'WORLD-1')));
+$node2 = new List_Node(array('s2' => array('var1' => 'HELLO-2', 'var2' => 'WORLD-2')));
+$node3 = new List_Node(array('s3' => array('var1' => 'HELLO-3', 'var2' => 'WORLD-3')));
+$node4 = new List_Node(array('s4' => array('var1' => 'HELLO-4', 'var2' => 'WORLD-4')));
+$node5 = new List_Node(array('s5' => array('var1' => 'HELLO-5', 'var2' => 'WORLD-5')));
+$node10 = new List_Node(array('s10' => array('var1' => 'HELLO-10', 'var2' => 'WORLD-10')));
+
+$list->add_head($node2);
+$list->add_head($node1);
+$list->add_tail($node3);
+
+$list->after($node5, $node2);
+$list->before($node4, $node3);
+$list->swap($node3, $node5);
+$list->remove($node3);
+
+$list->walk();
