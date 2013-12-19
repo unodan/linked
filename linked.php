@@ -16,7 +16,7 @@
 class List_Node {
   function __construct($data) {
     $this->id = key($data);
-    $this->data = $data;
+    $this->data = $data[$this->id];
     $this->ln_Succ = NULL; 
     $this->ln_Pred = NULL;
   }
