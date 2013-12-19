@@ -5,7 +5,6 @@
 * Website: http://www.dyncomp.net
 * 
 * File: linked.php
-* Version: 1.0
 * Date: 2013/12/18
 *
 * Methods: new_list(),add_head(), add_tail(), insert_before(), insert_after(), remove()
