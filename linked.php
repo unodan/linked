@@ -1,9 +1,10 @@
 /**
-* Linked list class.
+* Double linked list class.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * Website: http://www.dyncomp.net
 * 
+* File: linked.php
 * Version: 1.0
 * Date: 2013/12/18
 *
