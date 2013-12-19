@@ -78,10 +78,17 @@ class Linked_List {
   }
 	
   function add_tail(&$node) {
-    $node->ln_Succ = $this->lh_Tail;
-    $this->lh_Tail = $node;
-    $node->ln_Succ->ln_Pred = $node;
-    $node->ln_Pred = $this->lh_TailPred;
+    if ($this->is_empty()) { 
+      $this->lh_Head = $node;
+      $this->lh_Tail = $node;
+      $node->ln_Succ = $this->lh_TailPred;
+      $node->ln_Pred = $this->lh_TailPred;
+    } else {
+      $node->ln_Succ = $this->lh_Tail;
+      $this->lh_Tail = $node;
+      $node->ln_Succ->ln_Pred = $node;
+      $node->ln_Pred = $this->lh_TailPred;
+    }
     $this->length++;
   }
 	
