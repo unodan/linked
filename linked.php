@@ -304,3 +304,4 @@ $list->swap_nodes($node3, $node5);
 $list->remove($node3);
 
 $list->walk();
+ 
