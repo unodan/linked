@@ -1,17 +1,3 @@
-/**
-* Linked list class.
-* Author: Dan Huckson
-* Auther Email: DanHuckson@gmail.com
-* 
-* Version: 1.0
-* Date: 2013/12/18
-*
-* Methods: new_list(),add_head(), add_tail(), before(), after(), remove()
-*          size(), is_first(), is_last(), is_empty(), has_node(), get_node() swap_nodes()
-*          replace_node().
-*
-*****************************************************************************************/
-
 class List_Node {
 	function __construct($data) {
 		$this->id = key($data);
@@ -126,7 +112,7 @@ class Linked_List {
 		return TRUE;
 	}
 	
-	function replace_node(&$node1, &$node2) {
+	function replace(&$node1, &$node2) {
 		if (!$this->has_node($node1) || $node1 === $node2) return FALSE;
 		
 		if ($this->has_node($node2)) $this->remove($node2);
@@ -150,7 +136,7 @@ class Linked_List {
 		return TRUE;
 	}
 	
-	function swap_nodes(&$node1, &$node2) {
+	function swap(&$node1, &$node2) {
 		if (!$this->has_node($node1) || !$this->has_node($node2) || $node1 === $node2) return FALSE;
 	
 		if (($this->is_first($node1) && $this->is_last($node2)) || ($this->is_first($node2) && $this->is_last($node1))) {
@@ -284,24 +270,3 @@ class Linked_List {
 		if ($echo) echo $html; else return $html; 
 	}
 }
-
-$list = new Linked_List();
-			
-$node1 = new List_Node(array('s1' => array('var1' => 'HELLO-1', 'var2' => 'WORLD-1')));
-$node2 = new List_Node(array('s2' => array('var1' => 'HELLO-2', 'var2' => 'WORLD-2')));
-$node3 = new List_Node(array('s3' => array('var1' => 'HELLO-3', 'var2' => 'WORLD-3')));
-$node4 = new List_Node(array('s4' => array('var1' => 'HELLO-4', 'var2' => 'WORLD-4')));
-$node5 = new List_Node(array('s5' => array('var1' => 'HELLO-5', 'var2' => 'WORLD-5')));
-$node10 = new List_Node(array('s10' => array('var1' => 'HELLO-10', 'var2' => 'WORLD-10')));
-			
-$list->add_head($node2);
-$list->add_head($node1);
-$list->add_tail($node3);
-	
-$list->after($node5, $node2);
-$list->before($node4, $node3);
-$list->swap_nodes($node3, $node5);
-$list->remove($node3);
-
-$list->walk();
-
