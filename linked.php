@@ -1,6 +1,7 @@
 class List_Node {
 	function __construct($data) {
 		$this->id = key($data);
+		$this->index = NULL;
 		$this->data = $data[$this->id];
 		$this->ln_Succ = NULL; 
 		$this->ln_Pred = NULL;
@@ -12,27 +13,50 @@ class Linked_List {
 	
 	function __construct() {$this->new_list();}
 
-	function size() {return $this->length;}
+	function size() {
+		$count = 0;
+		$node = $this->first();
+		while ($node) {
+			$count++;
+			$node = $node->ln_Pred;
+		}
+		return $count;
+	}
 	
-	function is_first(&$node) {return ($node === $this->lh_Head) ? TRUE:FALSE;}
+	function index_of(&$list_node) {
+		$count = 0;
+		$index = FALSE;
+		$node = $this->first();
+		while ($node) {
+			$count++;
+			if ($list_node->id === $node->id) {$index = ($count - 1); break;}
+			$node = $node->ln_Pred;
+		}
+		return $index;
+	}
 	
-	function is_last(&$node) {return ($node === $this->lh_Tail) ? TRUE:FALSE;}
+	function first() {return $this->lh_Head;}
 	
-	function is_empty() {return ($this->lh_Head === $this->lh_TailPred) ? TRUE:FALSE;}
+	function last() {return $this->lh_Tail;}
+	
+	function is_first(&$node) {return ($node === $this->first()) ? TRUE:FALSE;}
+	
+	function is_last(&$node) {return ($node === $this->last()) ? TRUE:FALSE;}
+	
+	function is_empty() {return ($this->first() === $this->lh_TailPred) ? TRUE:FALSE;}
 	
 	function has_node(&$node) {
-		$list_node = $this->lh_Head;
+		$list_node = $this->first();
 		
 		while ($list_node) {
-			if ($list_node->id === $node->id) return TRUE ;
+			if ($list_node === $node) return TRUE ;
 			$list_node = $list_node->ln_Pred;
 		}
 		return FALSE;
 	}
 	
 	function get_node($id) {
-		$node = $this->lh_Head;
-		
+		$node = $this->first();
 		while ($node) {
 			if ($node->id === $id) return $node;
 			$node = $node->ln_Pred;
@@ -42,66 +66,49 @@ class Linked_List {
 	
 	function new_list() {
 		$this->lh_Head = $this->lh_TailPred;
-		$this->lh_Tail = $this->lh_TailPred ;
+		$this->lh_Tail = $this->lh_Head;
 		$this->lh_TailPred = NULL;
 	}
 	
 	function add_head(&$node) {
+		if ($this->has_node($node)) return FALSE;
+		
 		if ($this->is_empty()) { 
+			$node->ln_Succ = NULL;
+			$node->ln_Pred = NULL;
 			$this->lh_Head = $node;
 			$this->lh_Tail = $node;
-			$node->ln_Succ = $this->lh_TailPred;
-			$node->ln_Pred = $this->lh_TailPred;
 		} else {
-			$node->ln_Pred = $this->lh_Head;
-			$this->lh_Head = $node;
+			$node->ln_Succ = NULL;
+			$node->ln_Pred = $this->first();
 			$node->ln_Pred->ln_Succ = $node;
+			$this->lh_Head = $node;
 		}
-		$this->length++;
 	}
 	
 	function add_tail(&$node) {
+		if ($this->has_node($node)) return FALSE;
+		
 		if ($this->is_empty()) { 
+			$node->ln_Succ = NULL;
+			$node->ln_Pred = NULL;
 			$this->lh_Head = $node;
 			$this->lh_Tail = $node;
-			$node->ln_Succ = $this->lh_TailPred;
-			$node->ln_Pred = $this->lh_TailPred;
 		}  else {
-			$node->ln_Succ = $this->lh_Tail;
+			$node->ln_Succ = $this->last();
 			$this->lh_Tail = $node;
 			$node->ln_Succ->ln_Pred = $node;
-			$node->ln_Pred = $this->lh_TailPred;
+			$node->ln_Pred = NULL;
 		}
-		$this->length++;
-	}
-	
-	function after(&$node1, &$node2) {
-		if (!$this->has_node($node2) || $node1 === $node2) return FALSE;
-		
-		if ($this->is_last($node2)) {
-			$node1->ln_Succ = $this->lh_Tail;
-			$this->lh_Tail = $node1;
-			$node1->ln_Succ->ln_Pred = $node1;
-			$node1->ln_Pred = $this->lh_TailPred;
-		} else {
-			$node1->ln_Pred = $node2->ln_Pred; 
-			$node1->ln_Pred->ln_Succ = $node1; 
-			$node1->ln_Succ = $node2;
-			$node2->ln_Pred = $node1;
-			$this->length++;
-		}
-		$this->length++;
-		return TRUE;
 	}
 	
 	function before(&$node1, &$node2) {
 		if (!$this->has_node($node2) || $node1 === $node2) return FALSE;
 		
+		if ($this->has_node($node1)) $this->remove($node1);
+		
 		if ($this->is_first($node2)) {
-			$node1->ln_Pred = $node2;
-			$node2->ln_Succ = $node1;
-			$node1->ln_Succ = $this->lh_TailPred;
-			$this->lh_Head = $node1;
+			$this->add_head($node1);
 		} else {
 			$node1->ln_Succ = $node2->ln_Succ;
 			$node1->ln_Succ->ln_Pred = $node1; 
@@ -112,107 +119,67 @@ class Linked_List {
 		return TRUE;
 	}
 	
-	function replace(&$node1, &$node2) {
-		if (!$this->has_node($node1) || $node1 === $node2) return FALSE;
+	function after(&$node1, &$node2) {
+		if (!$this->has_node($node2) || $node1 === $node2) return FALSE;
 		
-		if ($this->has_node($node2)) $this->remove($node2);
+		if ($this->has_node($node1)) $this->remove($node1);
 		
-		if ($this->is_first($node1)) {
-			$node2->ln_Succ = $this->lh_TailPred;
-			$node1->ln_Pred->ln_Succ = $node2;
-			$node2->ln_Pred = $node1->ln_Pred;
-			$this->lh_Head = $node2;
-		} else if ($this->is_last($node1)) {
-			$node2->ln_Succ = $this->lh_Tail->ln_Succ;
-			$node1->ln_Succ->ln_Pred = $node2;
-			$node2->ln_Pred = $this->lh_TailPred;
-			$this->lh_Tail = $node2;
+		if ($this->is_last($node2)) {
+			$this->add_tail($node1);
 		} else {
-			$node2->ln_Succ = $node1->ln_Succ;
-			$node2->ln_Pred = $node1->ln_Pred;
-			$node1->ln_Succ->ln_Pred = $node2;
-			$node1->ln_Pred->ln_Succ = $node2;
+			$node1->ln_Pred = $node2->ln_Pred; 
+			$node1->ln_Pred->ln_Succ = $node1; 
+			$node1->ln_Succ = $node2;
+			$node2->ln_Pred = $node1;
 		}
 		return TRUE;
 	}
 	
 	function swap(&$node1, &$node2) {
-		if (!$this->has_node($node1) || !$this->has_node($node2) || $node1 === $node2) return FALSE;
 	
-		if (($this->is_first($node1) && $this->is_last($node2)) || ($this->is_first($node2) && $this->is_last($node1))) {
+		if (!$this->has_node($node1) || !$this->has_node($node2) || $node1 === $node2) return FALSE;
+		
+		$node1_index = $this->index_of($node1);
+		$node2_index = $this->index_of($node2);
+			
+		if ($this->is_first($node1) || $this->is_first($node2)) {
 			if ($this->is_first($node1)) {
-				$first_node = $node1;
-				$second_node = $node2;
+				$ln_Succ = $node2->ln_Succ;
+				$this->before($node2, $node1);
+				$this->after($node1, $ln_Succ);
 			} else {
-				$first_node = $node2;
-				$second_node = $node1;
+				$ln_Succ = $node1->ln_Succ;
+				$this->before($node1, $node2);
+				$this->after($node2, $ln_Succ);
 			}
 			
-			$ln_Pred = $first_node->ln_Pred;
-			$first_node->ln_Succ = $second_node->ln_Succ;
-			$first_node->ln_Pred = $this->lh_TailPred;
-			$first_node->ln_Succ->ln_Pred = $first_node;
-				
-			$second_node->ln_Succ = $this->lh_TailPred;
-			$second_node->ln_Pred = $ln_Pred;
-			$second_node->ln_Pred->ln_Succ = $second_node;
-				
-			$this->lh_Head = $second_node;
-			$this->lh_Tail = $first_node;
-		} else if ($this->is_first($node1) || $this->is_first($node2)) { 
-			if ($this->is_first($node1)) {
-				$first_node = $node1;
-				$second_node = $node2;
-			} else {
-				$first_node = $node2;
-				$second_node = $node1;
-			}
-			$ln_Pred = $first_node->ln_Pred;
-			
-			$first_node->ln_Succ = $second_node->ln_Succ;
-			$first_node->ln_Pred = $second_node->ln_Pred;
-			$first_node->ln_Pred->ln_Succ = $first_node;
-			$first_node->ln_Succ->ln_Pred = $first_node;
-			
-			$second_node->ln_Succ = $this->lh_TailPred;
-			$second_node->ln_Pred = $ln_Pred;
-			$second_node->ln_Pred->ln_Succ = $second_node;
-			
-			$this->lh_Head = $second_node;
 		} else if ($this->is_last($node1) || $this->is_last($node2)) {
 			if ($this->is_last($node2)) {
-				$first_node = $node1;
-				$second_node = $node2;
+				$ln_Succ = $node1->ln_Succ;
+				$this->after($node1, $node2);
+				$this->after($node2, $ln_Succ);
 			} else {
-				$first_node = $node2;
-				$second_node = $node1;
+				$ln_Succ = $node2->ln_Succ;
+				$this->after($node2, $node1);
+				$this->after($node1, $ln_Succ);
 			}
-			$ln_Succ = $first_node->ln_Succ;
-			$ln_Pred = $first_node->ln_Pred;
 			
-			$first_node->ln_Succ = $second_node->ln_Succ;
-			$first_node->ln_Pred = $second_node->ln_Pred;
-			$first_node->ln_Succ->ln_Pred = $first_node;
-			
-			$second_node->ln_Succ = $ln_Succ;
-			$second_node->ln_Pred = $ln_Pred;
-			$second_node->ln_Succ->ln_Pred = $second_node;
-			$second_node->ln_Pred->ln_Succ = $second_node;
-			
-			$this->lh_Tail = $first_node;
 		} else {
-			$ln_Succ = $node1->ln_Succ;
-			$ln_Pred = $node1->ln_Pred;
-			
-			$node1->ln_Succ = $node2->ln_Succ;
-			$node1->ln_Pred = $node2->ln_Pred;
-			$node1->ln_Succ->ln_Pred = $node1;
-			$node1->ln_Pred->ln_Succ = $node1;
-			
-			$node2->ln_Succ = $ln_Succ;
-			$node2->ln_Pred = $ln_Pred;
-			$node2->ln_Succ->ln_Pred = $node2;
-			$node2->ln_Pred->ln_Succ = $node2;
+			if ($node1_index == $node2_index - 1) { 
+				$this->after($node1, $node2);
+			} else if ($node2_index == $node1_index - 1) { 
+				$this->after($node2, $node1);
+			} else {
+				if ($node1_index < $node2_index) {
+					$tmp_node = $node2->ln_Succ;
+					$this->after($node2, $node1);
+					$this->after($node1, $tmp_node);
+				} else {
+					$tmp_node = $node1->ln_Succ;
+					$this->after($node1, $node2);
+					$this->after($node2, $tmp_node);
+				}
+			} 
 		}
 	}
 	
@@ -220,23 +187,31 @@ class Linked_List {
 		if (!$this->has_node($node)) return FALSE;
 		
 		if ($this->is_first($node)) {
+			if ($this->is_last($node)) $this->lh_Tail = NULL;
+			
 			$this->lh_Head = $this->lh_Head->ln_Pred;
-			$this->lh_Head->ln_Succ = $this->lh_TailPred;
+			$this->lh_Head->ln_Succ = NULL;
+			
 		} else if ($this->is_last($node)) {
 			$this->lh_Tail = $this->lh_Tail->ln_Succ;
-			$this->lh_Tail->ln_Pred = $this->lh_TailPred;
+			$this->lh_Tail->ln_Pred = NULL;
 		} else {
 			$node->ln_Succ->ln_Pred = $node->ln_Pred;
 			$node->ln_Pred->ln_Succ = $node->ln_Succ;
-			
 		}
-		$this->length--;
 		
 		return TRUE;
 	}
 	
+	function replace(&$node1, &$node2) {
+		if (!$this->has_node($node2) || $node1 === $node2) return FALSE;
+		
+		$this->before($node1, $node2);
+		$this->remove($node2);
+	}
+	
 	function walk($echo=TRUE) {
-		$node = $this->lh_Head;
+		$node = $this->first();
 		
 		$cnt = 0;
 		$html = '
@@ -271,22 +246,60 @@ class Linked_List {
 	}
 }
 
-$list = new Linked_List();
-
 $node1 = new List_Node(array('s1' => array('var1' => 'HELLO-1', 'var2' => 'WORLD-1')));
 $node2 = new List_Node(array('s2' => array('var1' => 'HELLO-2', 'var2' => 'WORLD-2')));
 $node3 = new List_Node(array('s3' => array('var1' => 'HELLO-3', 'var2' => 'WORLD-3')));
 $node4 = new List_Node(array('s4' => array('var1' => 'HELLO-4', 'var2' => 'WORLD-4')));
 $node5 = new List_Node(array('s5' => array('var1' => 'HELLO-5', 'var2' => 'WORLD-5')));
-$node10 = new List_Node(array('s10' => array('var1' => 'HELLO-10', 'var2' => 'WORLD-10')));
 
+$list = new Linked_List();
 $list->add_head($node2);
 $list->add_head($node1);
-$list->add_tail($node3);
+$list->add_tail($node4);
+$list->after($node3, $node2);
+$list->after($node5, $node4);
+$list->walk();
 
-$list->after($node5, $node2);
-$list->before($node4, $node3);
-$list->swap($node3, $node5);
+echo '<br>* Swap (2,4) ************************************************************<br><br>';
+$list->swap($node2, $node4);
+$list->walk();
+
+echo '<br>* Swap (4,2) ************************************************************<br><br>';
+$list->swap($node2, $node4);
+$list->walk();
+
+echo '<br>* Swap (1,5) (2,3) ***********************************************************<br><br>';
+$list->swap($node1, $node5);
+$list->swap($node2, $node3);
+$list->walk();
+
+echo '<br>* Swap (5,1) (3,2) ***********************************************************<br><br>';
+$list->swap($node5, $node1);
+$list->swap($node3, $node2);
+$list->walk();
+
+echo '<br>* Swap (1,2) (4,5) ************************************************************<br><br>';
+$list->swap($node1, $node2);
+$list->swap($node4, $node5);
+$list->walk();
+
+echo '<br>* Swap (2,1) (5,4) ************************************************************<br><br>';
+$list->swap($node2, $node1);
+$list->swap($node5, $node4);
+$list->walk();
+
+
+echo '<br>* Replace (1,2) (4,5) ************************************************************<br><br>';
+$list->replace($node1, $node2);
+$list->replace($node4, $node5);
+$list->walk();
+
+
+echo '<br>* Remove (3) (1) (4) ************************************************************<br><br>';
 $list->remove($node3);
+$list->remove($node1);
+$list->remove($node4);
 
 $list->walk();
+
+$list->add_head($node1);
