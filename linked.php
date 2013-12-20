@@ -246,6 +246,8 @@ class Linked_List {
 	}
 }
 
+
+/** TEST DATA BELOW *************************************************************************************** **/
 $node1 = new List_Node(array('s1' => array('var1' => 'HELLO-1', 'var2' => 'WORLD-1')));
 $node2 = new List_Node(array('s2' => array('var1' => 'HELLO-2', 'var2' => 'WORLD-2')));
 $node3 = new List_Node(array('s3' => array('var1' => 'HELLO-3', 'var2' => 'WORLD-3')));
@@ -260,46 +262,94 @@ $list->after($node3, $node2);
 $list->after($node5, $node4);
 $list->walk();
 
-echo '<br>* Swap (2,4) ************************************************************<br><br>';
-$list->swap($node2, $node4);
-$list->walk();
 
-echo '<br>* Swap (4,2) ************************************************************<br><br>';
-$list->swap($node2, $node4);
-$list->walk();
-
-echo '<br>* Swap (1,5) (2,3) ***********************************************************<br><br>';
+echo '<br>* swap (1,5) (2,3) ***********************************************************<br><br>';
 $list->swap($node1, $node5);
 $list->swap($node2, $node3);
 $list->walk();
 
-echo '<br>* Swap (5,1) (3,2) ***********************************************************<br><br>';
+echo '<br>* swap (5,1) (3,2) ***********************************************************<br><br>';
 $list->swap($node5, $node1);
 $list->swap($node3, $node2);
 $list->walk();
 
-echo '<br>* Swap (1,2) (4,5) ************************************************************<br><br>';
+echo '<br>* swap (1,2) (4,5) ************************************************************<br><br>';
 $list->swap($node1, $node2);
 $list->swap($node4, $node5);
 $list->walk();
 
-echo '<br>* Swap (2,1) (5,4) ************************************************************<br><br>';
+echo '<br>* swap (2,1) (5,4) ************************************************************<br><br>';
 $list->swap($node2, $node1);
 $list->swap($node5, $node4);
 $list->walk();
 
+echo '<br>* swap (2,4) ************************************************************<br><br>';
+$list->swap($node2, $node4);
+$list->walk();
 
-echo '<br>* Replace (1,2) (4,5) ************************************************************<br><br>';
+echo '<br>* swap (4,2) ************************************************************<br><br>';
+$list->swap($node2, $node4);
+$list->walk();
+
+echo '<br>* replace (1,2) (4,5) ************************************************************<br><br>';
 $list->replace($node1, $node2);
 $list->replace($node4, $node5);
 $list->walk();
 
-
-echo '<br>* Remove (3) (1) (4) ************************************************************<br><br>';
+echo '<br>* remove (3) (1) (4) ************************************************************<br><br>';
 $list->remove($node3);
 $list->remove($node1);
 $list->remove($node4);
-
 $list->walk();
 
+echo '<br>* add_tail (1) (2) (3) (4) (5) ***************************************************<br><br>';
+$list->add_tail($node1);
+$list->add_tail($node2);
+$list->add_tail($node3);
+$list->add_tail($node4);
+$list->add_tail($node5);
+$list->walk();
+
+echo '<br>* before (1,5) (3,2)  ********************************************************<br><br>';
+$list->before($node1 ,$node5);
+$list->before($node3 ,$node2);
+$list->walk();
+
+echo '<br>* before (5,1) (2,3) ********************************************************<br><br>';
+$list->before($node5 ,$node1);
+$list->before($node2 ,$node3);
+$list->walk();
+
+echo '<br>* before (1,2) ********************************************************<br><br>';
+$list->before($node1 ,$node2);
+$list->walk();
+
+echo '<br>* after (1,5) (2,3)  ********************************************************<br><br>';
+$list->after($node1 ,$node5);
+$list->after($node2 ,$node3);
+$list->walk();
+
+echo '<br>* after (5,1) (2,3)  ********************************************************<br><br>';
+$list->after($node5 ,$node1);
+$list->after($node3 ,$node2);
+$list->walk();
+
+echo '<br>* before (1,2)  ********************************************************<br><br>';
+$list->before($node1 ,$node2);
+$list->walk();
+
+echo '<br>* remove (1) (2) (3) (4) (5) ***************************************************<br><br>';
+$list->remove($node1);
+$list->remove($node2);
+$list->remove($node3);
+$list->remove($node4);
+$list->remove($node5);
+$list->walk();
+
+echo '<br>* add_head (1) (2) (3) (4) (5) ***************************************************<br><br>';
 $list->add_head($node1);
+$list->add_head($node2);
+$list->add_head($node3);
+$list->add_head($node4);
+$list->add_head($node5);
+$list->walk();
