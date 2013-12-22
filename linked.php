@@ -1,12 +1,4 @@
 <?php
-	/**
-	* Vitreous class definitions.
-	*
-	*
-	* @package 	WordPress
-	* @subpackage 	Vitreous
-	*/
-
 /**
 * Linked list class.
 * Author: Dan Huckson
