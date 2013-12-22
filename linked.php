@@ -1,7 +1,29 @@
+<?php
+	/**
+	* Vitreous class definitions.
+	*
+	*
+	* @package 	WordPress
+	* @subpackage 	Vitreous
+	*/
+
+/**
+* Linked list class.
+* Author: Dan Huckson
+* Auther Email: DanHuckson@gmail.com
+* 
+* Version: 1.0
+* Date: 2013/12/18
+*
+* Methods: new_list(),add_head(), add_tail(), before(), after(), remove()
+*          size(), is_first(), is_last(), is_empty(), has_node(), get_node() swap()
+*          replace().
+*
+*****************************************************************************************/
+
 class List_Node {
 	function __construct($data) {
 		$this->id = key($data);
-		$this->index = NULL;
 		$this->data = $data[$this->id];
 		$this->ln_Succ = NULL; 
 		$this->ln_Pred = NULL;
@@ -11,28 +33,15 @@ class List_Node {
 class Linked_List {
 	private $length = 0;
 	
-	function __construct() {$this->new_list();}
-
-	function size() {
-		$count = 0;
-		$node = $this->first();
-		while ($node) {
-			$count++;
-			$node = $node->ln_Pred;
-		}
-		return $count;
-	}
+	function __construct(&$list) {$this->new_list($list);}
 	
-	function index_of(&$list_node) {
-		$count = 0;
-		$index = FALSE;
-		$node = $this->first();
-		while ($node) {
-			$count++;
-			if ($list_node->id === $node->id) {$index = ($count - 1); break;}
-			$node = $node->ln_Pred;
+	function init($list) {
+		if (!empty($list)) {
+			foreach ($list as $i => $node) {
+				$node = new List_Node($node);
+				$this->add_tail($node);
+			}
 		}
-		return $index;
 	}
 	
 	function first() {return $this->lh_Head;}
@@ -44,6 +53,28 @@ class Linked_List {
 	function is_last(&$node) {return ($node === $this->last()) ? TRUE:FALSE;}
 	
 	function is_empty() {return ($this->first() === $this->lh_TailPred) ? TRUE:FALSE;}
+	
+	function size() {
+		$count = 0;
+		$node = $this->first();
+		while ($node) {
+			$count++;
+			$node = $node->ln_Pred;
+		}
+		return $count;
+	}
+	
+	function index_of(&$node) {
+		$count = 0;
+		$index = FALSE;
+		$list_node = $this->first();
+		while ($list_node) {
+			$count++;
+			if ($list_node->id === $node->id) {$index = ($count - 1); break;}
+			$list_node = $list_node->ln_Pred;
+		}
+		return $index;
+	}
 	
 	function has_node(&$node) {
 		$list_node = $this->first();
@@ -64,10 +95,12 @@ class Linked_List {
 		return FALSE;
 	}
 	
-	function new_list() {
+	function new_list(&$list) {
 		$this->lh_Head = $this->lh_TailPred;
-		$this->lh_Tail = $this->lh_Head;
+		$this->lh_Tail = $this->lh_TailPred;
 		$this->lh_TailPred = NULL;
+		
+		if (!empty($list)) $this->init($list);
 	}
 	
 	function add_head(&$node) {
@@ -187,11 +220,13 @@ class Linked_List {
 		if (!$this->has_node($node)) return FALSE;
 		
 		if ($this->is_first($node)) {
-			if ($this->is_last($node)) $this->lh_Tail = NULL;
-			
-			$this->lh_Head = $this->lh_Head->ln_Pred;
-			$this->lh_Head->ln_Succ = NULL;
-			
+			if ($this->is_last($node)) {
+				$this->lh_Tail = NULL;
+				$this->lh_Head = $this->lh_TailPred;
+			} else {
+				$this->lh_Head = $this->lh_Head->ln_Pred;
+				$this->lh_Head->ln_Succ = NULL;
+			}
 		} else if ($this->is_last($node)) {
 			$this->lh_Tail = $this->lh_Tail->ln_Succ;
 			$this->lh_Tail->ln_Pred = NULL;
@@ -245,6 +280,7 @@ class Linked_List {
 		if ($echo) echo $html; else return $html; 
 	}
 }
+
 
 
 /** TEST DATA BELOW *************************************************************************************** **/
