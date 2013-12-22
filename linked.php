@@ -1,15 +1,16 @@
 <?php
+
 /**
 * Linked list class.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 1.0
+* Version: 1.5
 * Date: 2013/12/18
 *
-* Methods: new_list(),add_head(), add_tail(), before(), after(), remove()
-*          size(), is_first(), is_last(), is_empty(), has_node(), get_node() swap()
-*          replace().
+* Methods: init(), new_list(), add_head(), add_tail(), before(), after(), remove(), index_of()
+*          size(), first(), last(), is_first(), is_last(), is_empty(), has_node(), get_node() swap()
+*          replace() walk(), dump().
 *
 *****************************************************************************************/
 
@@ -78,9 +79,13 @@ class Linked_List {
 		return FALSE;
 	}
 	
-	function get_node($id) {
-		$node = $this->first();
-		while ($node) {
+	function get_node($id, $node='') {
+		if (empty($node)) $node = $this->first();
+		else $node = $node->first();
+		
+		while ($node) {		
+			if ($node->data['content'] instanceof Linked_List) $this->get_node($id, $node->data['content']);
+
 			if ($node->id === $id) return $node;
 			$node = $node->ln_Pred;
 		}
