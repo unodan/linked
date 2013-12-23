@@ -1,7 +1,7 @@
 <?php
 
 /**
-* Linked list class.
+* Double Linked list class.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
