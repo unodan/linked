@@ -5,7 +5,7 @@
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 1.6
+* Version: 1.8
 * Date: 2013/12/18
 *
 * Methods: init(), new_list(), add_head(), add_tail(), before(), after(), remove(), index_of()
@@ -28,9 +28,9 @@ class Linked_List {
 	
 	function __construct(&$list) {$this->new_list($list);}
 	
-	function init($list) {
+	function init(&$list) {
 		if (!empty($list)) {
-			foreach ($list as $i => $node) {
+			foreach ($list as $node) {
 				$node = new List_Node($node);
 				$this->add_tail($node);
 			}
@@ -58,13 +58,12 @@ class Linked_List {
 	}
 	
 	function index_of(&$node) {
-		$count = 0;
-		$index = FALSE;
+		$index = 0;
 		$list_node = $this->first();
 		while ($list_node) {
-			$count++;
-			if ($list_node->id === $node->id) {$index = $count - 1; break;}
+			if ($list_node->id === $node->id) break;
 			$list_node = $list_node->ln_Pred;
+			$index++;
 		}
 		return $index;
 	}
@@ -72,7 +71,7 @@ class Linked_List {
 	function has_node(&$node) {
 		$list_node = $this->first();
 		while ($list_node) {
-			if ($list_node === $node) return TRUE ;
+			if ($list_node === $node) return TRUE;
 			$list_node = $list_node->ln_Pred;
 		}
 		return FALSE;
