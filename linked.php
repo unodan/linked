@@ -5,12 +5,12 @@
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 1.5
+* Version: 1.6
 * Date: 2013/12/18
 *
 * Methods: init(), new_list(), add_head(), add_tail(), before(), after(), remove(), index_of()
-*          size(), first(), last(), is_first(), is_last(), is_empty(), has_node(), get_node() swap()
-*          replace() walk(), dump().
+*          size(), first(), last(), is_first(), is_last(), is_empty(), has_node(), get_node(), swap()
+*          replace(), walk(), dump().
 *
 *****************************************************************************************/
 
@@ -63,7 +63,7 @@ class Linked_List {
 		$list_node = $this->first();
 		while ($list_node) {
 			$count++;
-			if ($list_node->id === $node->id) {$index = ($count - 1); break;}
+			if ($list_node->id === $node->id) {$index = $count - 1; break;}
 			$list_node = $list_node->ln_Pred;
 		}
 		return $index;
@@ -71,7 +71,6 @@ class Linked_List {
 	
 	function has_node(&$node) {
 		$list_node = $this->first();
-		
 		while ($list_node) {
 			if ($list_node === $node) return TRUE ;
 			$list_node = $list_node->ln_Pred;
@@ -80,16 +79,19 @@ class Linked_List {
 	}
 	
 	function get_node($id, $node='') {
+		$match = FALSE;
 		if (empty($node)) $node = $this->first();
 		else $node = $node->first();
 		
-		while ($node) {		
-			if ($node->data['content'] instanceof Linked_List) $this->get_node($id, $node->data['content']);
-
-			if ($node->id === $id) return $node;
+		while ($node && !$match) {
+			if ($node->data['content'] instanceof Linked_List) 
+				$match = $this->get_node($id, $node->data['content']);
+			
+			if ($node->id === $id) $match = $node;
+		
 			$node = $node->ln_Pred;
 		}
-		return FALSE;
+		return $match;
 	}
 	
 	function new_list(&$list) {
