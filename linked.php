@@ -357,7 +357,28 @@ $lista->walk();
 echo '<br>************************************************************<br>';
 $listb->swap($listb->get_node('b1'), $listc->get_node(1));
 $listb->walk();
-echo '<br>************************************************************<br>';
+
+echo '<br>* Node Test ***********************************************************<br>';
+$data = array(
+	array('var1' => 'HELLO-e1', 'var2' => 'WORLD-e1'),
+	array('var1' => 'HELLO-e2', 'var2' => 'WORLD-e2')
+);
+
+$data1 = array('var1' => 'HELLO-e3', 'var2' => 'WORLD-e3');
+$data2 = array('var1' => 'HELLO-e4', 'var2' => 'WORLD-e4');
+$data3 = array('var1' => 'HELLO-e5', 'var2' => 'WORLD-e5');
+$node1 = new List_Node($data1);
+$node2 = new List_Node($data2);
+$node3 = new List_Node($data3);
+
+$liste = new Linked_list($data);
+
+$node = $liste->first();
+
+$node->insert_after($node1);
+$node1->insert_before($node2);
+$node->replace($node3);
+
 $listc->walk();
 
 
