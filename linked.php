@@ -1,20 +1,20 @@
 <?php
 
 /**
-* Double Linked list class.
+* Linked list node.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 2.0
-* Date: 2013/12/25
+* Version: 2.1
+* Date: 2013/12/26
 *
-* Methods: init(), new_list(), add_head(), add_tail(), before(), after(), remove(), index_of()
-*          size(), first(), last(), is_first(), is_last(), is_empty(), has_node(), get_node(), swap()
-*          replace(), walk(), dump().
+* Class: List_Node
+*
+* Methods: id(), is_first(), is_last(), is_zombie(), insert_before(), 
+*          insert_after(), replace(), remove()
+*
 *
 *****************************************************************************************/
-
-
 class List_Node {
 	function __construct(&$data=NULL) {
 		$this->id = $this->id(&$data);
@@ -51,16 +51,31 @@ class List_Node {
 	function remove() {if (!$this->is_zombie()) $this->parent->remove($this);}
 }
 
+/**
+* Double linked list.
+* Author: Dan Huckson
+* Auther Email: DanHuckson@gmail.com
+* 
+* Version: 2.1
+* Date: 2013/12/26
+*
+* Class: Linked List
+*
+* Methods: init(), add_head(), add_tail(), before(), after(), remove(), index_of()
+*          size(), first(), last(), is_first(), is_last(), is_empty(), has_node(), get_node(), swap()
+*          replace(), walk(), dump().
+*
+*****************************************************************************************/
 class Linked_List {
-	function __construct(&$list) {
+	function __construct(&$list=NULL) {
 		$this->lh_Head = $this->lh_TailPred;
 		$this->lh_Tail = $this->lh_TailPred;
 		$this->lh_TailPred = NULL;
 		if (!empty($list)) $this->init($list);
 	}
 	
-	function init(&$nodes) {
-		if (!empty($nodes)) foreach ($nodes as $node) 
+	function init(&$list_nodes) {
+		if (!empty($list_nodes)) foreach ($list_nodes as $node) 
 		$this->add_tail(new List_Node($node));
 	}
 	
@@ -264,5 +279,87 @@ class Linked_List {
 		if ($echo) echo $html; else return $html; 
 	}
 }
+
+
+/**
+* Text code.
+* Author: Dan Huckson
+* Auther Email: DanHuckson@gmail.com
+* 
+* Version: 2.1
+* Date: 2013/12/26
+*
+*****************************************************************************************/
+echo '<br>* List 1 ***********************************************************<br>';
+$data1 = array(
+	array('id' => 'a1', 'var1' => 'HELLO-b1', 'var2' => 'WORLD-b1'),
+	array('id' => 'a2', 'var1' => 'HELLO-b2', 'var2' => 'WORLD-b2'),
+	array('id' => 'a3', 'var1' => 'HELLO-b3', 'var2' => 'WORLD-b3'),
+	array('id' => 'a4', 'var1' => 'HELLO-b4', 'var2' => 'WORLD-b4'),
+	array('id' => 'a5', 'var1' => 'HELLO-b5', 'var2' => 'WORLD-b5')
+);
+$lista = new Linked_list($data1);
+$lista->walk();
+
+echo '<br>* List 2 ***********************************************************<br>';
+$data2 = array(
+	array('id' => 'b1', 'var1' => 'HELLO-b1', 'var2' => 'WORLD-b1'),
+	array('id' => 'b2', 'var1' => 'HELLO-b2', 'var2' => 'WORLD-b2'),
+	array('id' => 'b3', 'var1' => 'HELLO-b3', 'var2' => 'WORLD-b3'),
+	array('id' => 'b4', 'var1' => 'HELLO-b4', 'var2' => 'WORLD-b4'),
+	array('id' => 'b5', 'var1' => 'HELLO-b5', 'var2' => 'WORLD-b5')
+);
+$listb = new Linked_list();
+$listb->init($data2);
+$listb->walk();
+
+echo '<br>* List 3 ***********************************************************<br>';
+$data2 = array(
+	array('var1' => 'HELLO-c1', 'var2' => 'WORLD-c1'),
+	array('var1' => 'HELLO-c2', 'var2' => 'WORLD-c2'),
+	array('var1' => 'HELLO-c3', 'var2' => 'WORLD-c3'),
+	array('var1' => 'HELLO-c4', 'var2' => 'WORLD-c4'),
+	array('var1' => 'HELLO-c5', 'var2' => 'WORLD-c5')
+);
+$listc = new Linked_list($data2);
+$listc->walk();
+
+echo '<br>* List 4 ***********************************************************<br>';
+$data1 = array('id' => 'd1', 'var1' => 'HELLO-d1', 'var2' => 'WORLD-d1');
+$data2 = array('id' => 'd2', 'var1' => 'HELLO-d2', 'var2' => 'WORLD-d2');
+$data3 = array('id' => 'd3', 'var1' => 'HELLO-d3', 'var2' => 'WORLD-d3');
+$data4 = array('id' => 'd4', 'var1' => 'HELLO-d4', 'var2' => 'WORLD-d4');
+$data5 = array('id' => 'd5', 'var1' => 'HELLO-d5', 'var2' => 'WORLD-d5');
+
+$node1 = new List_Node($data1);
+$node2 = new List_Node($data2);
+$node3 = new List_Node($data3);
+$node4 = new List_Node($data4);
+$node5 = new List_Node($data5);
+
+$listd = new Linked_list();
+
+$listd->add_tail($node2);
+$listd->add_head($node5);
+$listd->after($node4, $node2);
+$listd->before($node3, $node4);
+$listd->add_tail($node1);
+$listd->swap($node1, $node5);
+$listd->walk();
+
+echo '<br>************************************************************<br>';
+$data = array('id' => 'X1', 'var1' => 'HELLO-x1', 'var2' => 'WORLD-x1');
+$node = new List_Node($data);
+
+$lista->replace($node, $lista->get_node('a1'));
+$lista->walk();
+
+echo '<br>************************************************************<br>';
+$listb->swap($listb->get_node('b1'), $listc->get_node(1));
+$listb->walk();
+echo '<br>************************************************************<br>';
+$listc->walk();
+
+
 
 
