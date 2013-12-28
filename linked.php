@@ -223,7 +223,10 @@ class Linked_List {
 	
 	function remove(&$node) {
 		$parent = $node->parent;
-		if ($node->is_zombie()) return FALSE;
+		
+		if ($node->is_zombie()) {
+			throw new Exception('node ID: '.$node->id.' is not a member of a list.');
+		}
 		
 		if ($node->is_first()) {
 			if ($node->is_last()) {
@@ -340,6 +343,14 @@ $node5 = new List_Node($data5);
 $listd = new Linked_list();
 
 $listd->add_tail($node2);
+
+try {
+	$listd->remove($node1);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "You must first add the node to a list before it can be removed!<br/><br/>";
+}
+
 $listd->add_head($node5);
 $listd->after($node4, $node2);
 $listd->before($node3, $node4);
