@@ -296,11 +296,11 @@ class Linked_List {
 
 
 /**
-* Text code.
+* Unit test code.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 2.1
+* Version: 2.2
 * Date: 2013/12/26
 *
 *****************************************************************************************/
