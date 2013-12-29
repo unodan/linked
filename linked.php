@@ -17,7 +17,7 @@
 *****************************************************************************************/
 class List_Node {
 	function __construct(&$data=NULL) {
-		$this->id = $this->id(&$data);
+		$this->id = $this->id($data);
 		$this->data = $data;
 		$this->parent = NULL; 
 		$this->ln_Succ = NULL; 
@@ -38,12 +38,12 @@ class List_Node {
 	
 	function insert_after(&$node) {
 		if (!$this->parent) return FALSE;
-		else return $this->parent->after($this, $node);
+		else return $this->parent->after($node, $this);
 	}
 	
 	function insert_before(&$node) {
 		if (!$this->parent) return FALSE;
-		else return $this->parent->before($this, $node);
+		else return $this->parent->before($node, $this);
 	}
 	
 	function replace(&$node) {$this->parent->replace($node, $this);}
@@ -56,7 +56,7 @@ class List_Node {
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
-* Version: 2.1
+* Version: 2.2
 * Date: 2013/12/26
 *
 * Class: Linked List
@@ -68,9 +68,9 @@ class List_Node {
 *****************************************************************************************/
 class Linked_List {
 	function __construct(&$list=NULL) {
+		$this->lh_TailPred = NULL;
 		$this->lh_Head = $this->lh_TailPred;
 		$this->lh_Tail = $this->lh_TailPred;
-		$this->lh_TailPred = NULL;
 		if (!empty($list)) $this->init($list);
 	}
 	
@@ -102,7 +102,7 @@ class Linked_List {
 		
 		while ($node && !$match) {
 			if ($node->data['content'] instanceof Linked_List) 
-				$match = $this->get_node($id, &$node->data['content']);
+				$match = $this->get_node($id, $node->data['content']);
 			
 			if ($node->id === $id) $match = $node;
 		
@@ -112,6 +112,8 @@ class Linked_List {
 	}
 	
 	function index_of(&$node) {
+		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id.' is not a member of a list.');
+		
 		$index = 0;
 		$list_node = $this->first();
 		while ($list_node) {
@@ -132,7 +134,7 @@ class Linked_List {
 	}
 	
 	function add_head(&$node) {
-		if ($this->has_node($node)) return FALSE;
+		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id.' attempted to add itself again to the head of the list.');
 		
 		if (!$node->is_zombie()) $node->remove();
 		
@@ -151,7 +153,7 @@ class Linked_List {
 	}
 	
 	function add_tail(&$node) {
-		if ($this->has_node($node)) return FALSE;
+		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id.' attempted to add itself again to the tail of the list.');
 		
 		if (!$node->is_zombie()) $node->remove();
 		
@@ -170,7 +172,8 @@ class Linked_List {
 	}
 	
 	function before(&$node1, &$node2) {
-		if ($node2->is_zombie() || $node1 === $node2) return FALSE;
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to insert itself before it itself.');
 		
 		if ($node1->parent && $node1->parent->has_node($node1)) $node1->parent->remove($node1);
 		
@@ -187,6 +190,9 @@ class Linked_List {
 	}
 	
 	function after(&$node1, &$node2) {
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to insert itself after it itself.');
+		
 		if ($node2->is_zombie() || $node1 === $node2) return FALSE;
 		
 		if ($node1->parent && $node1->parent->has_node($node1)) $node1->parent->remove($node1);
@@ -204,6 +210,10 @@ class Linked_List {
 	}
 	
 	function swap(&$node1, &$node2) {
+		if ($node1->is_zombie()) throw new Exception('node ID: '.$node1->id.' is not a member of a list.');
+		else if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node1->id.' attempted to swap itself.');
+		
 		$parent2 = $node2->parent;
 		$ln_Succ = $node2->ln_Succ;
 		
@@ -215,19 +225,17 @@ class Linked_List {
 	}
 	
 	function replace(&$node1, &$node2) {
-		if ($node2->is_zombie() || $node1 === $node2) return FALSE;
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to replace itself.');
 		
 		$node2->parent->after($node1, $node2);
 		$node2->remove();
 	}
 	
 	function remove(&$node) {
+		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id.' is not a member of a list.');
+		
 		$parent = $node->parent;
-		
-		if ($node->is_zombie()) {
-			throw new Exception('node ID: '.$node->id.' is not a member of a list.');
-		}
-		
 		if ($node->is_first()) {
 			if ($node->is_last()) {
 				$parent->lh_Tail = NULL;
@@ -251,22 +259,24 @@ class Linked_List {
 	function walk($echo=TRUE) {
 		$node = $this->lh_Head;
 		
+		$succ_id = ($node->is_first()) ? 'NULL':$node->ln_Succ->id;
+		$pred_id = ($node->is_last()) ? 'NULL':$node->ln_Pred->id;
+		
 		$cnt = 0;
 		$html = '
-				List Size '.$this->size().'<br/>
+				List Size '.self::size().'<br/>
 				List Head Node ID: '.(($this->lh_Head->id !== NULL) ? $this->lh_Head->id:'NULL').'<br/>
 				List Tail Node ID: '.(($this->lh_Tail->id !== NULL) ? $this->lh_Tail->id:'NULL').'<br/>
 				List TailPred: '.(($this->lh_TailPred) ? $this->lh_TailPred->id:'NULL') . '<br/><br/><br/>';
-		while ($node) {
-			
-			$html .= '<br/>
-				Node ID: '.$node->id.'<br>
-				Node Succ ID: '.(($node->ln_Succ->id !== NULL) ? $node->ln_Succ->id:'NULL').'<br/>
-				Node Pred ID: '.(($node->ln_Pred->id !== NULL) ? $node->ln_Pred->id:'NULL').'<br/>
-				Node Data: '.$this->dump($node->data, FALSE);
+				
+		while ($node) { $html .= '
+			<br/>
+			Node ID: '.$node->id.'<br>
+			Node Succ ID: '.$succ_id.'<br/>
+			Node Pred ID: '.$pred_id.'<br/>
+			Node Data: '.$this->dump($node->data, FALSE);
 				
 			$node = $node->ln_Pred;
-		
 		}
 		if ($echo) echo $html; else return $html; 
 	}
@@ -282,6 +292,7 @@ class Linked_List {
 		if ($echo) echo $html; else return $html; 
 	}
 }
+
 
 
 /**
@@ -343,18 +354,72 @@ $node5 = new List_Node($data5);
 $listd = new Linked_list();
 
 $listd->add_tail($node2);
-
+echo '<br/>NOTICE *** ERRORS BELOW WHERE MADE ON PURPOSE TO TEST EXCEPTIONS. ***<br/><br/>';
 try {
 	$listd->remove($node1);
 } catch (Exception $e) {
 	echo '<br/>ERROR: '.$e->getMessage().'</br>';
-	echo "You must first add the node to a list before it can be removed!<br/><br/>";
+	echo "A node must first be added to a list before it can be removed.<br/><br/>";
+}
+
+try {
+	$listd->replace($node2, $node2);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "Replacing a node with itself has no effect.<br/><br/>";
+}
+
+try {
+	$listd->index_of($node5);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node must first be added to a list in order to have a index.<br/><br/>";
+}
+
+try {
+	$listd->swap($node2, $node2);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node can not be swaped with itself, nodes must be different nodes.<br/><br/>";
 }
 
 $listd->add_head($node5);
+
+try {
+	$listd->add_head($node5);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node can not be added to the head of a list if already in the list.<br/>First remove the node then add it to the head of the list.<br/><br/>";
+}
+
 $listd->after($node4, $node2);
 $listd->before($node3, $node4);
+
+try {
+	$listd->before($node5, $node5);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node can not be inserted before itself, nodes must be different nodes.<br/><br/>";
+}
+
+try {
+	$listd->after($node5, $node5);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node can not be inserted after itself, nodes must be different nodes.<br/><br/>";
+}
+
 $listd->add_tail($node1);
+
+try {
+	$listd->add_tail($node1);
+} catch (Exception $e) {
+	echo '<br/>ERROR: '.$e->getMessage().'</br>';
+	echo "A node can not be added to the tail of a list if already in the list.<br/>First remove the node then add it to the tail of the list.<br/><br/>";
+}
+
+echo '<br/>NOTICE *** ERRORS ABOVE WHERE MADE ON PURPOSE TO TEST EXCEPTIONS. ***<br/><br/>';
+
 $listd->swap($node1, $node5);
 $listd->walk();
 
