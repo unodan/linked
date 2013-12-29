@@ -3,7 +3,7 @@
 /**
 * Linked list node.
 * Author: Dan Huckson
-* Auther Email: DanHuckson@gmail.com
+* Author Email: DanHuckson@gmail.com
 * 
 * Version: 2.1
 * Date: 2013/12/26
@@ -54,7 +54,7 @@ class List_Node {
 /**
 * Double linked list.
 * Author: Dan Huckson
-* Auther Email: DanHuckson@gmail.com
+* Author Email: DanHuckson@gmail.com
 * 
 * Version: 2.2
 * Date: 2013/12/26
@@ -298,7 +298,7 @@ class Linked_List {
 /**
 * Unit test code.
 * Author: Dan Huckson
-* Auther Email: DanHuckson@gmail.com
+* Author Email: DanHuckson@gmail.com
 * 
 * Version: 2.2
 * Date: 2013/12/26
@@ -456,7 +456,3 @@ $node1->insert_before($node2);
 $node->replace($node3);
 
 $listc->walk();
-
-
-
-
