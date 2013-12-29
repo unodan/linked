@@ -5,7 +5,7 @@
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.4
+* Version: 2.5
 * Date: 2013/12/29
 *
 * Class: List_Node
@@ -43,12 +43,12 @@ class List_Node {
 	function is_zombie () {return (!$this->parent || !$this->parent->has_node($this)) ? TRUE:FALSE;}
 	
 	function insert_after(&$node) {
-		if (!$this->parent)  throw new Exception('node ID: '.$node->id().' is not a member of a list.');
+		if (!$this->parent) throw new Exception('this node ID: '.$node->id().' is not a member of a list.');
 		else return $this->parent->after($node, $this);
 	}
 	
 	function insert_before(&$node) {
-		if (!$this->parent) return FALSE;
+		if (!$this->parent) throw new Exception('node ID: '.$node->id().' is not a member of a list.');
 		else return $this->parent->before($node, $this);
 	}
 	
@@ -62,7 +62,7 @@ class List_Node {
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.4
+* Version: 2.5
 * Date: 2013/12/29
 *
 * Class: Linked List
@@ -297,14 +297,13 @@ class Linked_List extends List_Node {
 	}
 }
 
-
 /**
 * Text code.
 * Author: Dan Huckson
 * Auther Email: DanHuckson@gmail.com
 * 
 * Version: 2.4
-* Date: 2013/12/29
+* Date: 2013/12/26
 *
 *****************************************************************************************/
 echo '<br>* List 1 ***********************************************************<br>';
@@ -446,6 +445,7 @@ $data = array(
 $data1 = array('var1' => 'HELLO-e3', 'var2' => 'WORLD-e3');
 $data2 = array('var1' => 'HELLO-e4', 'var2' => 'WORLD-e4');
 $data3 = array('var1' => 'HELLO-e5', 'var2' => 'WORLD-e5');
+
 $node1 = new List_Node($data1);
 $node2 = new List_Node($data2);
 $node3 = new List_Node($data3);
@@ -457,5 +457,4 @@ $node = $liste->first();
 $node->insert_after($node1);
 $node1->insert_before($node2);
 $node->replace($node3);
-
-$listc->walk();
+$liste->walk();
