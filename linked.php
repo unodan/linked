@@ -5,30 +5,36 @@
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.1
-* Date: 2013/12/26
+* Version: 2.4
+* Date: 2013/12/29
 *
 * Class: List_Node
 *
-* Methods: id(), is_first(), is_last(), is_zombie(), insert_before(), 
+* Methods: id(), set_id(), is_first(), is_last(), is_zombie(), insert_before(), 
 *          insert_after(), replace(), remove()
 *
 *
 *****************************************************************************************/
 class List_Node {
+	private $id;
+	protected $parent, $ln_Succ, $ln_Pred;
+	
 	function __construct(&$data=NULL) {
-		$this->id = $this->id($data);
+		$uid = (isset($data['id'])) ? $data['id']:'';
+		
+		$this->set_id($uid);
 		$this->data = $data;
 		$this->parent = NULL; 
 		$this->ln_Succ = NULL; 
 		$this->ln_Pred = NULL;
 	}
 	
-	function id(&$data) {
-		static $id = 0;
-		$this->id = (isset($data['id']) && $data['id']) ? $data['id']:++$id;
-		return $this->id;
+	private function set_id($uid) {
+		static $cnt = 0;
+		$this->id = (empty($uid)) ? ++$cnt:$uid;
 	}
+	
+	function id() {return $this->id;}
 	
 	function is_first() {return ($this === $this->parent->lh_Head) ? TRUE:FALSE;}
 	
@@ -37,7 +43,7 @@ class List_Node {
 	function is_zombie () {return (!$this->parent || !$this->parent->has_node($this)) ? TRUE:FALSE;}
 	
 	function insert_after(&$node) {
-		if (!$this->parent) return FALSE;
+		if (!$this->parent)  throw new Exception('node ID: '.$node->id().' is not a member of a list.');
 		else return $this->parent->after($node, $this);
 	}
 	
@@ -56,8 +62,8 @@ class List_Node {
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.2
-* Date: 2013/12/26
+* Version: 2.4
+* Date: 2013/12/29
 *
 * Class: Linked List
 *
@@ -66,7 +72,8 @@ class List_Node {
 *          replace(), walk(), dump().
 *
 *****************************************************************************************/
-class Linked_List {
+class Linked_List extends List_Node {
+	
 	function __construct(&$list=NULL) {
 		$this->lh_TailPred = NULL;
 		$this->lh_Head = $this->lh_TailPred;
@@ -88,10 +95,7 @@ class Linked_List {
 	function size() {
 		$count = 0;
 		$node = $this->lh_Head;
-		while ($node) {
-			$count++;
-			$node = $node->ln_Pred;
-		}
+		while ($node) {$node = $node->ln_Pred; $count++;}
 		return $count;
 	}
 	
@@ -101,10 +105,10 @@ class Linked_List {
 		else $node = $list->lh_Head;
 		
 		while ($node && !$match) {
-			if ($node->data['content'] instanceof Linked_List) 
+			if (isset($node->data['content']) && $node->data['content'] instanceof Linked_List) 
 				$match = $this->get_node($id, $node->data['content']);
 			
-			if ($node->id === $id) $match = $node;
+			if ($node->id() === $id) $match = $node;
 		
 			$node = $node->ln_Pred;
 		}
@@ -112,12 +116,12 @@ class Linked_List {
 	}
 	
 	function index_of(&$node) {
-		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id.' is not a member of a list.');
+		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id().' is not a member of a list.');
 		
 		$index = 0;
 		$list_node = $this->first();
 		while ($list_node) {
-			if ($list_node->id === $node->id) break;
+			if ($list_node->id() === $node->id()) break;
 			$list_node = $list_node->ln_Pred;
 			$index++;
 		}
@@ -134,7 +138,7 @@ class Linked_List {
 	}
 	
 	function add_head(&$node) {
-		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id.' attempted to add itself again to the head of the list.');
+		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id().' attempted to add itself again to the head of the list.');
 		
 		if (!$node->is_zombie()) $node->remove();
 		
@@ -153,7 +157,7 @@ class Linked_List {
 	}
 	
 	function add_tail(&$node) {
-		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id.' attempted to add itself again to the tail of the list.');
+		if ($this->has_node($node)) throw new Exception('node ID: '.$node->id().' attempted to add itself again to the tail of the list.');
 		
 		if (!$node->is_zombie()) $node->remove();
 		
@@ -172,8 +176,8 @@ class Linked_List {
 	}
 	
 	function before(&$node1, &$node2) {
-		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
-		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to insert itself before it itself.');
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id().' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id().' attempted to insert itself before it itself.');
 		
 		if ($node1->parent && $node1->parent->has_node($node1)) $node1->parent->remove($node1);
 		
@@ -190,8 +194,8 @@ class Linked_List {
 	}
 	
 	function after(&$node1, &$node2) {
-		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
-		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to insert itself after it itself.');
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id().' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id().' attempted to insert itself after it itself.');
 		
 		if ($node2->is_zombie() || $node1 === $node2) return FALSE;
 		
@@ -210,9 +214,9 @@ class Linked_List {
 	}
 	
 	function swap(&$node1, &$node2) {
-		if ($node1->is_zombie()) throw new Exception('node ID: '.$node1->id.' is not a member of a list.');
-		else if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
-		else if ($node1 === $node2) throw new Exception('node ID: '.$node1->id.' attempted to swap itself.');
+		if ($node1->is_zombie()) throw new Exception('node ID: '.$node1->id().' is not a member of a list.');
+		else if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id().' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node1->id().' attempted to swap itself.');
 		
 		$parent2 = $node2->parent;
 		$ln_Succ = $node2->ln_Succ;
@@ -225,15 +229,15 @@ class Linked_List {
 	}
 	
 	function replace(&$node1, &$node2) {
-		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id.' is not a member of a list.');
-		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id.' attempted to replace itself.');
+		if ($node2->is_zombie()) throw new Exception('node ID: '.$node2->id().' is not a member of a list.');
+		else if ($node1 === $node2) throw new Exception('node ID: '.$node2->id().' attempted to replace itself.');
 		
 		$node2->parent->after($node1, $node2);
 		$node2->remove();
 	}
 	
 	function remove(&$node) {
-		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id.' is not a member of a list.');
+		if ($node->is_zombie()) throw new Exception('node ID: '.$node->id().' is not a member of a list.');
 		
 		$parent = $node->parent;
 		if ($node->is_first()) {
@@ -257,21 +261,21 @@ class Linked_List {
 	}
 	
 	function walk($echo=TRUE) {
+		$cnt = 0;
 		$node = $this->lh_Head;
 		
-		$succ_id = ($node->is_first()) ? 'NULL':$node->ln_Succ->id;
-		$pred_id = ($node->is_last()) ? 'NULL':$node->ln_Pred->id;
-		
-		$cnt = 0;
 		$html = '
 				List Size '.self::size().'<br/>
-				List Head Node ID: '.(($this->lh_Head->id !== NULL) ? $this->lh_Head->id:'NULL').'<br/>
-				List Tail Node ID: '.(($this->lh_Tail->id !== NULL) ? $this->lh_Tail->id:'NULL').'<br/>
-				List TailPred: '.(($this->lh_TailPred) ? $this->lh_TailPred->id:'NULL') . '<br/><br/><br/>';
+				List Head Node ID: '.(($this->lh_Head->id() !== NULL) ? $this->lh_Head->id():'NULL').'<br/>
+				List Tail Node ID: '.(($this->lh_Tail->id() !== NULL) ? $this->lh_Tail->id():'NULL').'<br/>
+				List TailPred: '.(($this->lh_TailPred) ? $this->lh_TailPred->id():'NULL') . '<br/><br/><br/>';
 				
-		while ($node) { $html .= '
+		while ($node) { 
+			$succ_id = (isset($node->ln_Succ)) ? $node->ln_Succ->id():'NULL';
+			$pred_id = (isset($node->ln_Pred)) ? $node->ln_Pred->id():'NULL';
+			$html .= '
 			<br/>
-			Node ID: '.$node->id.'<br>
+			Node ID: '.$node->id().'<br>
 			Node Succ ID: '.$succ_id.'<br/>
 			Node Pred ID: '.$pred_id.'<br/>
 			Node Data: '.$this->dump($node->data, FALSE);
@@ -294,14 +298,13 @@ class Linked_List {
 }
 
 
-
 /**
-* Unit test code.
+* Text code.
 * Author: Dan Huckson
-* Author Email: DanHuckson@gmail.com
+* Auther Email: DanHuckson@gmail.com
 * 
-* Version: 2.2
-* Date: 2013/12/26
+* Version: 2.4
+* Date: 2013/12/29
 *
 *****************************************************************************************/
 echo '<br>* List 1 ***********************************************************<br>';
