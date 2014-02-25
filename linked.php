@@ -5,16 +5,17 @@
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.5
+* Version: 2.7
 * Date: 2013/12/29
 *
 * Class: List_Node
 *
 * Methods: id(), set_id(), is_first(), is_last(), is_zombie(), insert_before(), 
-*          insert_after(), replace(), remove()
+*          insert_after(), replace(), remove(), get_next(), get_prev()
 *
 *
 *****************************************************************************************/
+
 class List_Node {
 	private $id;
 	protected $parent, $ln_Succ, $ln_Pred;
@@ -34,7 +35,11 @@ class List_Node {
 		$this->id = (empty($uid)) ? ++$cnt:$uid;
 	}
 	
-	function id() {return $this->id;}
+	function id() {return $this->id;}	
+	
+	function get_next() {return $this->ln_Pred;}
+	
+	function get_prev() {return $this->ln_Succ;}
 	
 	function is_first() {return ($this === $this->parent->lh_Head) ? TRUE:FALSE;}
 	
@@ -62,7 +67,7 @@ class List_Node {
 * Author: Dan Huckson
 * Author Email: DanHuckson@gmail.com
 * 
-* Version: 2.5
+* Version: 2.6
 * Date: 2013/12/29
 *
 * Class: Linked List
