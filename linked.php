@@ -154,6 +154,8 @@ class Linked_List extends List_Node {
 			$this->lh_Head = $node;
 		}
 		$node->parent = $this;
+		
+		return $this;
 	}
 	
 	function add_tail(&$node) {
@@ -173,6 +175,8 @@ class Linked_List extends List_Node {
 			$node->ln_Pred = NULL;
 		}
 		$node->parent = $this;
+		
+		return $this;
 	}
 	
 	function before(&$node1, &$node2) {
@@ -234,6 +238,8 @@ class Linked_List extends List_Node {
 		
 		$node2->parent->after($node1, $node2);
 		$node2->remove();
+		
+		return $node1;
 	}
 	
 	function remove(&$node) {
